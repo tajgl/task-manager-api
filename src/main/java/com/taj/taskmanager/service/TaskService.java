@@ -2,13 +2,12 @@ package com.taj.taskmanager.service;
 
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.TaskRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class TaskService {
@@ -28,26 +27,27 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Optional<Task> getTaskById(long id) {
-        return taskRepository.findById(id);
+    public Task getTaskById(long id) {
+        return taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("Task does not exist"));
     }
 
-    public Task updateTask(Long taskId, String title, String description, Task.Priority priority, LocalDate dueDate, Task.Status status) {
+    @Transactional
+    public Task updateTask(Long taskId, Task updatedTask) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalStateException("Task does not exist"));
-        if (title != null && !title.isEmpty() && !Objects.equals(task.getTitle(), title)) {
-            task.setTitle(title);
+        if (updatedTask.getTitle() != null && !updatedTask.getTitle().isEmpty() && !Objects.equals(task.getTitle(), updatedTask.getTitle())) {
+            task.setTitle(updatedTask.getTitle());
         }
-        if (description != null && !description.isEmpty() && !Objects.equals(task.getDescription(), description)) {
-            task.setDescription(description);
+        if (updatedTask.getDescription() != null && !updatedTask.getDescription().isEmpty() && !Objects.equals(task.getDescription(), updatedTask.getDescription())) {
+            task.setDescription(updatedTask.getDescription());
         }
-        if (priority != null && !Objects.equals(task.getPriority(), priority)) {
-            task.setPriority(priority);
+        if (updatedTask.getPriority() != null && !Objects.equals(task.getPriority(), updatedTask.getPriority())) {
+            task.setPriority(updatedTask.getPriority());
         }
-        if (dueDate != null && !Objects.equals(task.getDueDate(), dueDate)) {
-            task.setDueDate(dueDate);
+        if (updatedTask.getDueDate() != null && !Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
+            task.setDueDate(updatedTask.getDueDate());
         }
-        if (status != null && !Objects.equals(task.getStatus(), status)) {
-            task.setStatus(status);
+        if (updatedTask.getStatus() != null && !Objects.equals(task.getStatus(), updatedTask.getStatus())) {
+            task.setStatus(updatedTask.getStatus());
         }
 
         return task;
