@@ -1,5 +1,6 @@
 package com.taj.taskmanager.service;
 
+import com.taj.taskmanager.exception.TaskNotFoundException;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.TaskRepository;
 import jakarta.transaction.Transactional;
@@ -28,22 +29,22 @@ public class TaskService {
     }
 
     public Task getTaskById(long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new IllegalStateException("Task does not exist"));
+        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
     }
 
     @Transactional
     public Task updateTask(Long taskId, Task updatedTask) {
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new IllegalStateException("Task does not exist"));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
         if (updatedTask.getTitle() != null && !updatedTask.getTitle().isEmpty() && !Objects.equals(task.getTitle(), updatedTask.getTitle())) {
             task.setTitle(updatedTask.getTitle());
         }
-        if (updatedTask.getDescription() != null && !updatedTask.getDescription().isEmpty() && !Objects.equals(task.getDescription(), updatedTask.getDescription())) {
+        if (!Objects.equals(task.getDescription(), updatedTask.getDescription())) {
             task.setDescription(updatedTask.getDescription());
         }
         if (updatedTask.getPriority() != null && !Objects.equals(task.getPriority(), updatedTask.getPriority())) {
             task.setPriority(updatedTask.getPriority());
         }
-        if (updatedTask.getDueDate() != null && !Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
+        if (!Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
             task.setDueDate(updatedTask.getDueDate());
         }
         if (updatedTask.getStatus() != null && !Objects.equals(task.getStatus(), updatedTask.getStatus())) {
@@ -54,9 +55,11 @@ public class TaskService {
     }
 
     public void deleteTask(Long taskId) {
-        if (taskRepository.findById(taskId).isEmpty()) {
-            throw new IllegalStateException("Task with id: " + taskId + " does not exist");
+        if (taskRepository.findById(taskId).isPresent()) {
+            taskRepository.deleteById(taskId);
         }
-        taskRepository.deleteById(taskId);
+        else {
+            throw new TaskNotFoundException("Task does not exist");
+        }
     }
 }
