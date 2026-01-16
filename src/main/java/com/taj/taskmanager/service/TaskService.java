@@ -38,13 +38,13 @@ public class TaskService {
         if (updatedTask.getTitle() != null && !updatedTask.getTitle().isEmpty() && !Objects.equals(task.getTitle(), updatedTask.getTitle())) {
             task.setTitle(updatedTask.getTitle());
         }
-        if (!Objects.equals(task.getDescription(), updatedTask.getDescription())) {
+        if (updatedTask.getDescription() != null && !Objects.equals(task.getDescription(), updatedTask.getDescription())) {
             task.setDescription(updatedTask.getDescription());
         }
         if (updatedTask.getPriority() != null && !Objects.equals(task.getPriority(), updatedTask.getPriority())) {
             task.setPriority(updatedTask.getPriority());
         }
-        if (!Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
+        if (updatedTask.getDueDate() != null && !Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
             task.setDueDate(updatedTask.getDueDate());
         }
         if (updatedTask.getStatus() != null && !Objects.equals(task.getStatus(), updatedTask.getStatus())) {
