@@ -21,6 +21,9 @@ public class TaskService {
     }
 
     public Task createTask(Task task) {
+        if (task.getStatus() == null) task.setStatus(Task.Status.TODO);
+        if (task.getPriority() == null) task.setPriority(Task.Priority.MEDIUM);
+
         return taskRepository.save(task);
     }
 

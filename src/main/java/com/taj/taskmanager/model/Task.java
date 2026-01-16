@@ -39,8 +39,6 @@ public class Task {
 
     public Task() {
         this.createdAt = LocalDateTime.now();
-        this.status = Status.TODO;
-        this.priority = Priority.MEDIUM;
     }
 
     public Long getId() {
