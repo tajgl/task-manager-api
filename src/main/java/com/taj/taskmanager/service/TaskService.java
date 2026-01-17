@@ -74,4 +74,16 @@ public class TaskService {
             throw new TaskNotFoundException("Task does not exist");
         }
     }
+
+    public List<Task> getTasksByStatus(Task.Status status) {
+        return taskRepository.findByStatus(status);
+    }
+
+    public List<Task> getTasksByPriority(Task.Priority priority) {
+        return taskRepository.findByPriority(priority);
+    }
+
+    public List<Task> getTasksByTitleContainingIgnoreCase(String search) {
+        return taskRepository.findByTitleContainingIgnoreCase(search);
+    }
 }

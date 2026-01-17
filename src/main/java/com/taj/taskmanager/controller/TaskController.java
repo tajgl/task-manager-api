@@ -26,7 +26,22 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks() {
+    public ResponseEntity<List<Task>> getAllTasks(@RequestParam(required = false) Task.Status status,
+                                                  @RequestParam(required = false) Task.Priority priority,
+                                                  @RequestParam(required = false) String search) {
+
+        if (status != null) {
+            return new ResponseEntity<>(taskService.getTasksByStatus(status), HttpStatus.OK);
+        }
+
+        if (priority != null) {
+            return new ResponseEntity<>(taskService.getTasksByPriority(priority), HttpStatus.OK);
+        }
+
+        if (search != null) {
+            return new ResponseEntity<>(taskService.getTasksByTitleContainingIgnoreCase(search), HttpStatus.OK);
+        }
+
         return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);
     }
 
