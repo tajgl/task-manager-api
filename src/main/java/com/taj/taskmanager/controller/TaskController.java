@@ -28,7 +28,9 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<Task>> getAllTasks(@RequestParam(required = false) Task.Status status,
                                                   @RequestParam(required = false) Task.Priority priority,
-                                                  @RequestParam(required = false) String search) {
+                                                  @RequestParam(required = false) String search,
+                                                  @RequestParam(required = false) String sortBy,
+                                                  @RequestParam(required = false) String order) {
 
         if (status != null) {
             return new ResponseEntity<>(taskService.getTasksByStatus(status), HttpStatus.OK);
@@ -40,6 +42,10 @@ public class TaskController {
 
         if (search != null) {
             return new ResponseEntity<>(taskService.getTasksByTitleContainingIgnoreCase(search), HttpStatus.OK);
+        }
+
+        if (sortBy != null) {
+            return new ResponseEntity<>(taskService.getAllTasksSorted(sortBy, order), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(taskService.getAllTasks(), HttpStatus.OK);

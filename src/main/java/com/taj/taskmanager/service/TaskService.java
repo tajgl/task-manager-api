@@ -5,6 +5,7 @@ import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -85,5 +86,12 @@ public class TaskService {
 
     public List<Task> getTasksByTitleContainingIgnoreCase(String search) {
         return taskRepository.findByTitleContainingIgnoreCase(search);
+    }
+
+    public List<Task> getAllTasksSorted(String sortBy, String order) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        return taskRepository.findAll(sort);
     }
 }
