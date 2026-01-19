@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,9 +91,36 @@ public class TaskService {
     }
 
     public List<Task> getAllTasksSorted(String sortBy, String order) {
+        if("priority".equals(sortBy)) {
+            List<Task> tasks = taskRepository.findAll();
+
+            tasks.sort((t1,t2) -> {
+                int p1 = getPriorityValue(t1.getPriority());
+                int p2 = getPriorityValue(t2.getPriority());
+
+                if ("desc".equals(order)) {
+                    return p1 - p2;
+                }
+                else {
+                    return p2 - p1;
+                }
+            });
+
+            return tasks;
+        }
+
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, sortBy);
 
         return taskRepository.findAll(sort);
+    }
+
+    //Helper for priority sorting
+    private int getPriorityValue(Task.Priority priority) {
+        return switch (priority) {
+            case HIGH -> 3;
+            case MEDIUM -> 2;
+            case LOW -> 1;
+        };
     }
 }
