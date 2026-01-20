@@ -121,4 +121,8 @@ public class TaskService {
             case LOW -> 1;
         };
     }
+
+    public List<Task> getTasksByProjectId(Long projectId) {
+        return taskRepository.findByProjectId(projectId);
+    }
 }

@@ -29,6 +29,7 @@ public class TaskController {
     public ResponseEntity<List<Task>> getAllTasks(@RequestParam(required = false) Task.Status status,
                                                   @RequestParam(required = false) Task.Priority priority,
                                                   @RequestParam(required = false) String search,
+                                                  @RequestParam(required = false) Long projectId,
                                                   @RequestParam(required = false) String sortBy,
                                                   @RequestParam(required = false) String order) {
 
@@ -42,6 +43,10 @@ public class TaskController {
 
         if (search != null) {
             return new ResponseEntity<>(taskService.getTasksByTitleContainingIgnoreCase(search), HttpStatus.OK);
+        }
+
+        if (projectId != null) {
+            return new ResponseEntity<>(taskService.getTasksByProjectId(projectId), HttpStatus.OK);
         }
 
         if (sortBy != null) {
