@@ -24,7 +24,7 @@ public class TaskService {
     public Task createTask(Task task) {
 
         if (task.getTitle() == null) {
-            throw new IllegalArgumentException("Title required");
+            throw new IllegalArgumentException("Task title required");
         }
 
         if (task.getStatus() == null) {
@@ -41,7 +41,7 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Task getTaskById(long id) {
+    public Task getTaskById(Long id) {
         return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
     }
 
