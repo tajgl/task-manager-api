@@ -1,7 +1,10 @@
 package com.taj.taskmanager.service;
 
+import com.taj.taskmanager.exception.ProjectNotFoundException;
 import com.taj.taskmanager.exception.TaskNotFoundException;
+import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
+import com.taj.taskmanager.repository.ProjectRepository;
 import com.taj.taskmanager.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +18,12 @@ import java.util.Objects;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
     }
 
     public Task createTask(Task task) {
@@ -32,6 +37,11 @@ public class TaskService {
         }
         if (task.getPriority() == null) {
             task.setPriority(Task.Priority.MEDIUM);
+        }
+        
+        if (task.getProject() != null && task.getProject().getId() != null) {
+            Project project = projectRepository.findById(task.getProject().getId()).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+            task.setProject(project);
         }
 
         return taskRepository.save(task);
