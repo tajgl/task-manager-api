@@ -1,6 +1,10 @@
 package com.taj.taskmanager.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -8,17 +12,16 @@ import java.time.LocalDateTime;
 @Table(name = "tasks")
 public class Task {
 
-    @ManyToOne
-    @JoinColumn(name="project_id")
-    private Project project;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 200, message = "Title must be less that 200 characters")
     @Column(nullable = false)
     private String title;
 
+    @Size(max = 1000, message = "Description must be less than 100 characters")
     @Column(length = 1000)
     private String description;
 
@@ -27,11 +30,17 @@ public class Task {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @NotNull(message = "Priority is required")
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
+    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @ManyToOne
+    @JoinColumn(name="project_id")
+    private Project project;
 
     public enum Priority {
         LOW, MEDIUM, HIGH
