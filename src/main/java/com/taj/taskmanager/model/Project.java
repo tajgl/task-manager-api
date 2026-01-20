@@ -2,6 +2,8 @@ package com.taj.taskmanager.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,9 +17,12 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Project name is required")
+    @Size(max = 100, message = "Project name must be less than 100 characters")
     @Column(nullable = false)
     private String name;
 
+    @Size(max = 500, message = "Description must be less than 500 characters")
     @Column(length = 1000)
     private String description;
 

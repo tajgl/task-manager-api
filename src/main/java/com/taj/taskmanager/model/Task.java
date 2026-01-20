@@ -21,7 +21,7 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
-    @Size(max = 1000, message = "Description must be less than 100 characters")
+    @Size(max = 1000, message = "Description must be less than 1000 characters")
     @Column(length = 1000)
     private String description;
 
