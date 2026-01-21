@@ -1,5 +1,6 @@
 package com.taj.taskmanager.controller;
 
+import jakarta.validation.Valid;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.service.ProjectService;
@@ -22,7 +23,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
+    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
         return new ResponseEntity<>(projectService.createProject(project), HttpStatus.CREATED);
     }
 
@@ -37,7 +38,7 @@ public class ProjectController {
     }
 
     @PutMapping(path="{projectId}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long projectId, @RequestBody Project project) {
+    public ResponseEntity<Project> updateProject(@PathVariable Long projectId, @Valid @RequestBody Project project) {
         return new ResponseEntity<>(projectService.updateProject(projectId, project), HttpStatus.OK);
     }
 

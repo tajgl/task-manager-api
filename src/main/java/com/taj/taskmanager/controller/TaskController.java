@@ -1,5 +1,6 @@
 package com.taj.taskmanager.controller;
 
+import jakarta.validation.Valid;
 import com.taj.taskmanager.service.TaskService;
 import com.taj.taskmanager.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@RequestBody Task task) {
+    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
         return new ResponseEntity<>(taskService.createTask(task), HttpStatus.CREATED);
     }
 
@@ -62,7 +63,7 @@ public class TaskController {
     }
 
     @PutMapping(path = "{taskId}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody Task updatedTask) {
+    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @Valid @RequestBody Task updatedTask) {
         return new ResponseEntity<>(taskService.updateTask(taskId, updatedTask), HttpStatus.OK);
     }
 

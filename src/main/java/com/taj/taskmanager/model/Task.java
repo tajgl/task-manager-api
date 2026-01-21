@@ -30,11 +30,9 @@ public class Task {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Priority is required")
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
-    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     private Status status;
 

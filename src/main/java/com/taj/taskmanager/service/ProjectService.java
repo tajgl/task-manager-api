@@ -21,10 +21,6 @@ public class ProjectService {
     }
 
     public Project createProject(Project project) {
-        if (project.getName() == null) {
-            throw new IllegalArgumentException("Project name required");
-        }
-
         return projectRepository.save(project);
     }
 
@@ -40,7 +36,7 @@ public class ProjectService {
     public Project updateProject(Long projectId, Project updatedProject) {
         Project project = projectRepository.findById(projectId).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
-        if (updatedProject.getName() != null && !updatedProject.getName().isEmpty() && !Objects.equals(project.getName(), updatedProject.getName())) {
+        if (!Objects.equals(project.getName(), updatedProject.getName())) {
             project.setName(updatedProject.getName());
         }
 
