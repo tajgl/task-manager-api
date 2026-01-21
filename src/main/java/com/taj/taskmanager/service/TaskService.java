@@ -53,7 +53,7 @@ public class TaskService {
     @Transactional
     public Task updateTask(Long taskId, Task updatedTask) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
-        if (!Objects.equals(task.getTitle(), updatedTask.getTitle())) {
+        if (updatedTask.getTitle() != null && !updatedTask.getTitle().isEmpty() && !Objects.equals(task.getTitle(), updatedTask.getTitle())) {
             task.setTitle(updatedTask.getTitle());
         }
         if (updatedTask.getDescription() != null && !Objects.equals(task.getDescription(), updatedTask.getDescription())) {

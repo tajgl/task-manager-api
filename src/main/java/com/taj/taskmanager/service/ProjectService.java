@@ -36,7 +36,7 @@ public class ProjectService {
     public Project updateProject(Long projectId, Project updatedProject) {
         Project project = projectRepository.findById(projectId).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
-        if (!Objects.equals(project.getName(), updatedProject.getName())) {
+        if (updatedProject.getName() != null && !updatedProject.getName().isEmpty() && !Objects.equals(project.getName(), updatedProject.getName())) {
             project.setName(updatedProject.getName());
         }
 
