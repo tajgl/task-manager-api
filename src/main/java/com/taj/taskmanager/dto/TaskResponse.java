@@ -1,7 +1,6 @@
 package com.taj.taskmanager.dto;
 
 import com.taj.taskmanager.model.Task;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

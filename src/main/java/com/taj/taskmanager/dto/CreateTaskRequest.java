@@ -3,7 +3,6 @@ package com.taj.taskmanager.dto;
 import com.taj.taskmanager.model.Task;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDate;
 
 public class CreateTaskRequest {
