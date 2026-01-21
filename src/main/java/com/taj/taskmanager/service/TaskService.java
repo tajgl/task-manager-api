@@ -1,32 +1,38 @@
 package com.taj.taskmanager.service;
 
+import com.taj.taskmanager.dto.CreateTaskRequest;
+import com.taj.taskmanager.dto.TaskResponse;
+import com.taj.taskmanager.dto.UpdateTaskRequest;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
 import com.taj.taskmanager.exception.TaskNotFoundException;
+import com.taj.taskmanager.mapper.TaskMapper;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.ProjectRepository;
 import com.taj.taskmanager.repository.TaskRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final TaskMapper taskMapper;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.taskMapper = taskMapper;
     }
 
-    public Task createTask(Task task) {
+    public TaskResponse createTask(CreateTaskRequest request) {
+        Task task = taskMapper.toEntity(request);
+
+        // Set defaults
         if (task.getStatus() == null) {
             task.setStatus(Task.Status.TODO);
         }
@@ -34,42 +40,35 @@ public class TaskService {
             task.setPriority(Task.Priority.MEDIUM);
         }
         
-        if (task.getProject() != null && task.getProject().getId() != null) {
-            Project project = projectRepository.findById(task.getProject().getId()).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+        if (request.getProjectId() != null) {
+            Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
             task.setProject(project);
         }
 
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+        return taskMapper.toResponse(savedTask);
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public List<TaskResponse> getAllTasks() {
+        return taskRepository.findAll().stream().map(taskMapper::toResponse).toList();
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
+    public TaskResponse getTaskById(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
+        return taskMapper.toResponse(task);
     }
 
-    @Transactional
-    public Task updateTask(Long taskId, Task updatedTask) {
+    public TaskResponse updateTask(Long taskId, UpdateTaskRequest request) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
-        if (updatedTask.getTitle() != null && !updatedTask.getTitle().isEmpty() && !Objects.equals(task.getTitle(), updatedTask.getTitle())) {
-            task.setTitle(updatedTask.getTitle());
-        }
-        if (updatedTask.getDescription() != null && !Objects.equals(task.getDescription(), updatedTask.getDescription())) {
-            task.setDescription(updatedTask.getDescription());
-        }
-        if (updatedTask.getPriority() != null && !Objects.equals(task.getPriority(), updatedTask.getPriority())) {
-            task.setPriority(updatedTask.getPriority());
-        }
-        if (updatedTask.getDueDate() != null && !Objects.equals(task.getDueDate(), updatedTask.getDueDate())) {
-            task.setDueDate(updatedTask.getDueDate());
-        }
-        if (updatedTask.getStatus() != null && !Objects.equals(task.getStatus(), updatedTask.getStatus())) {
-            task.setStatus(updatedTask.getStatus());
+
+        taskMapper.updateEntity(task, request);
+
+        if (request.getProjectId() != null) {
+            Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
+            task.setProject(project);
         }
 
-        return task;
+        return taskMapper.toResponse(taskRepository.save(task));
     }
 
     public void deleteTask(Long taskId) {
@@ -81,21 +80,21 @@ public class TaskService {
         }
     }
 
-    public List<Task> getTasksByStatus(Task.Status status) {
+    public List<TaskResponse> getTasksByStatus(Task.Status status) {
         return taskRepository.findByStatus(status);
     }
 
-    public List<Task> getTasksByPriority(Task.Priority priority) {
+    public List<TaskResponse> getTasksByPriority(Task.Priority priority) {
         return taskRepository.findByPriority(priority);
     }
 
-    public List<Task> getTasksByTitleContainingIgnoreCase(String search) {
+    public List<TaskResponse> getTasksByTitleContainingIgnoreCase(String search) {
         return taskRepository.findByTitleContainingIgnoreCase(search);
     }
 
-    public List<Task> getAllTasksSorted(String sortBy, String order) {
+    public List<TaskResponse> getAllTasksSorted(String sortBy, String order) {
         if("priority".equals(sortBy)) {
-            List<Task> tasks = taskRepository.findAll();
+            List<TaskResponse> tasks = getAllTasks();
 
             tasks.sort((t1,t2) -> {
                 int p1 = getPriorityValue(t1.getPriority());
@@ -115,7 +114,7 @@ public class TaskService {
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, sortBy);
 
-        return taskRepository.findAll(sort);
+        return taskRepository.findAll(sort).stream().map(taskMapper::toResponse).toList();
     }
 
     //Helper for priority sorting
@@ -127,7 +126,7 @@ public class TaskService {
         };
     }
 
-    public List<Task> getTasksByProjectId(Long projectId) {
+    public List<TaskResponse> getTasksByProjectId(Long projectId) {
         return taskRepository.findByProjectId(projectId);
     }
 }

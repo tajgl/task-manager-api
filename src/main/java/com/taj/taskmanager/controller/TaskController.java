@@ -1,5 +1,8 @@
 package com.taj.taskmanager.controller;
 
+import com.taj.taskmanager.dto.CreateTaskRequest;
+import com.taj.taskmanager.dto.TaskResponse;
+import com.taj.taskmanager.dto.UpdateTaskRequest;
 import jakarta.validation.Valid;
 import com.taj.taskmanager.service.TaskService;
 import com.taj.taskmanager.model.Task;
@@ -7,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -22,12 +24,12 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
-        return new ResponseEntity<>(taskService.createTask(task), HttpStatus.CREATED);
+    public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody CreateTaskRequest request) {
+        return new ResponseEntity<>(taskService.createTask(request), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Task>> getAllTasks(@RequestParam(required = false) Task.Status status,
+    public ResponseEntity<List<TaskResponse>> getAllTasks(@RequestParam(required = false) Task.Status status,
                                                   @RequestParam(required = false) Task.Priority priority,
                                                   @RequestParam(required = false) String search,
                                                   @RequestParam(required = false) Long projectId,
@@ -58,13 +60,13 @@ public class TaskController {
     }
 
     @GetMapping(path = "{taskId}")
-    public ResponseEntity<Task> getTaskById(@PathVariable Long taskId) {
+    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long taskId) {
         return new ResponseEntity<>(taskService.getTaskById(taskId), HttpStatus.OK);
     }
 
     @PutMapping(path = "{taskId}")
-    public ResponseEntity<Task> updateTask(@PathVariable Long taskId, @RequestBody Task updatedTask) {
-        return new ResponseEntity<>(taskService.updateTask(taskId, updatedTask), HttpStatus.OK);
+    public ResponseEntity<TaskResponse> updateTask(@PathVariable Long taskId, @RequestBody UpdateTaskRequest request) {
+        return new ResponseEntity<>(taskService.updateTask(taskId, request), HttpStatus.OK);
     }
 
     @DeleteMapping(path = "{taskId}")

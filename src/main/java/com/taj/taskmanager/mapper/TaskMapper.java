@@ -4,7 +4,9 @@ import com.taj.taskmanager.dto.CreateTaskRequest;
 import com.taj.taskmanager.dto.TaskResponse;
 import com.taj.taskmanager.dto.UpdateTaskRequest;
 import com.taj.taskmanager.model.Task;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TaskMapper {
 
     // Convert CreateTaskRequest to Task entity
