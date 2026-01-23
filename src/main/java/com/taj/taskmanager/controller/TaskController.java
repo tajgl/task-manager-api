@@ -29,29 +29,41 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks(@RequestParam(required = false) Task.Status status,
-                                                  @RequestParam(required = false) Task.Priority priority,
-                                                  @RequestParam(required = false) String search,
-                                                  @RequestParam(required = false) Long projectId,
-                                                  @RequestParam(required = false) String sortBy,
-                                                  @RequestParam(required = false) String order) {
+    public ResponseEntity<?> getAllTasks(@RequestParam(required = false) Task.Status status,
+                                         @RequestParam(required = false) Task.Priority priority,
+                                         @RequestParam(required = false) String search,
+                                         @RequestParam(required = false) Long projectId,
+                                         @RequestParam(required = false) String sortBy,
+                                         @RequestParam(required = false) String order,
+                                         @RequestParam(required = false) Integer page,      //  For pagination
+                                         @RequestParam(required = false) Integer size) {    //  For pagination
 
+        //  If pagination params provided
+        if (page != null && size != null) {
+            return new ResponseEntity<>(taskService.getALlTasksPaginated(page, size, sortBy, order), HttpStatus.OK);
+        }
+
+        //  If status param provided
         if (status != null) {
             return new ResponseEntity<>(taskService.getTasksByStatus(status), HttpStatus.OK);
         }
 
+        //  If priority param provided
         if (priority != null) {
             return new ResponseEntity<>(taskService.getTasksByPriority(priority), HttpStatus.OK);
         }
 
+        //  If search param provided
         if (search != null) {
             return new ResponseEntity<>(taskService.getTasksByTitleContainingIgnoreCase(search), HttpStatus.OK);
         }
 
+        //  If projectId param provided
         if (projectId != null) {
             return new ResponseEntity<>(taskService.getTasksByProjectId(projectId), HttpStatus.OK);
         }
 
+        //  If soring params provided
         if (sortBy != null) {
             return new ResponseEntity<>(taskService.getAllTasksSorted(sortBy, order), HttpStatus.OK);
         }

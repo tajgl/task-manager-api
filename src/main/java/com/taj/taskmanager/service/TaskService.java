@@ -1,6 +1,7 @@
 package com.taj.taskmanager.service;
 
 import com.taj.taskmanager.dto.CreateTaskRequest;
+import com.taj.taskmanager.dto.PageResponse;
 import com.taj.taskmanager.dto.TaskResponse;
 import com.taj.taskmanager.dto.UpdateTaskRequest;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
@@ -11,6 +12,9 @@ import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.ProjectRepository;
 import com.taj.taskmanager.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -52,6 +56,24 @@ public class TaskService {
 
     public List<TaskResponse> getAllTasks() {
         return taskRepository.findAll().stream().map(taskMapper::toResponse).toList();
+    }
+
+    public PageResponse<TaskResponse> getALlTasksPaginated(int page, int size, String sortBy, String order) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, (sortBy != null) ? sortBy : "id");
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Task> taskPage = taskRepository.findAll(pageable);
+
+        List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
+
+        return new PageResponse<>(taskResponses,
+                taskPage.getNumber(),
+                taskPage.getSize(),
+                taskPage.getTotalElements(),
+                taskPage.getTotalPages(),
+                taskPage.isFirst(),
+                taskPage.isLast());
     }
 
     public TaskResponse getTaskById(Long id) {
