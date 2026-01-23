@@ -32,14 +32,15 @@ public class TaskService {
     public TaskResponse createTask(CreateTaskRequest request) {
         Task task = taskMapper.toEntity(request);
 
-        // Set defaults
+        //  Set defaults
         if (task.getStatus() == null) {
             task.setStatus(Task.Status.TODO);
         }
         if (task.getPriority() == null) {
             task.setPriority(Task.Priority.MEDIUM);
         }
-        
+
+        //  Check for existing project
         if (request.getProjectId() != null) {
             Project project = projectRepository.findById(request.getProjectId()).orElseThrow(() -> new ProjectNotFoundException("Project not found"));
             task.setProject(project);
@@ -81,15 +82,15 @@ public class TaskService {
     }
 
     public List<TaskResponse> getTasksByStatus(Task.Status status) {
-        return taskRepository.findByStatus(status);
+        return taskRepository.findByStatus(status).stream().map(taskMapper::toResponse).toList();
     }
 
     public List<TaskResponse> getTasksByPriority(Task.Priority priority) {
-        return taskRepository.findByPriority(priority);
+        return taskRepository.findByPriority(priority).stream().map(taskMapper::toResponse).toList();
     }
 
     public List<TaskResponse> getTasksByTitleContainingIgnoreCase(String search) {
-        return taskRepository.findByTitleContainingIgnoreCase(search);
+        return taskRepository.findByTitleContainingIgnoreCase(search).stream().map(taskMapper::toResponse).toList();
     }
 
     public List<TaskResponse> getAllTasksSorted(String sortBy, String order) {
@@ -127,6 +128,6 @@ public class TaskService {
     }
 
     public List<TaskResponse> getTasksByProjectId(Long projectId) {
-        return taskRepository.findByProjectId(projectId);
+        return taskRepository.findByProjectId(projectId).stream().map(taskMapper::toResponse).toList();
     }
 }

@@ -9,11 +9,11 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    List<TaskResponse> findByStatus(Task.Status status);
+    List<Task> findByStatus(Task.Status status);
 
-    List<TaskResponse> findByPriority(Task.Priority priority);
+    List<Task> findByPriority(Task.Priority priority);
 
-    List<TaskResponse> findByTitleContainingIgnoreCase(String search);
+    List<Task> findByTitleContainingIgnoreCase(String search);
 
-    List<TaskResponse> findByProjectId(Long projectId);
+    List<Task> findByProjectId(Long projectId);
 }

@@ -16,11 +16,11 @@ public class CreateTaskRequest {
 
     private LocalDate dueDate;
 
-    private Task.Priority priority;
+    private Task.Priority priority;     // Optional - will default to MEDIUM
 
-    private Task.Status status;
+    private Task.Status status;     // Optional - will default to TODO
 
-    private Long projectId;
+    private Long projectId;     // Just the ID, not the whole object
 
     public CreateTaskRequest() {
     }
