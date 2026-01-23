@@ -81,6 +81,7 @@ public class TaskService {
         }
     }
 
+    //  Filtering
     public List<TaskResponse> getTasksByStatus(Task.Status status) {
         return taskRepository.findByStatus(status).stream().map(taskMapper::toResponse).toList();
     }
@@ -91,6 +92,10 @@ public class TaskService {
 
     public List<TaskResponse> getTasksByTitleContainingIgnoreCase(String search) {
         return taskRepository.findByTitleContainingIgnoreCase(search).stream().map(taskMapper::toResponse).toList();
+    }
+
+    public List<TaskResponse> getTasksByProjectId(Long projectId) {
+        return taskRepository.findByProjectId(projectId).stream().map(taskMapper::toResponse).toList();
     }
 
     public List<TaskResponse> getAllTasksSorted(String sortBy, String order) {
@@ -118,16 +123,12 @@ public class TaskService {
         return taskRepository.findAll(sort).stream().map(taskMapper::toResponse).toList();
     }
 
-    //Helper for priority sorting
+    //  Helper for priority sorting
     private int getPriorityValue(Task.Priority priority) {
         return switch (priority) {
             case HIGH -> 3;
             case MEDIUM -> 2;
             case LOW -> 1;
         };
-    }
-
-    public List<TaskResponse> getTasksByProjectId(Long projectId) {
-        return taskRepository.findByProjectId(projectId).stream().map(taskMapper::toResponse).toList();
     }
 }
