@@ -6,11 +6,11 @@ import com.taj.taskmanager.dto.UpdateTaskRequest;
 import jakarta.validation.Valid;
 import com.taj.taskmanager.service.TaskService;
 import com.taj.taskmanager.model.Task;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -38,9 +38,29 @@ public class TaskController {
                                          @RequestParam(required = false) Integer page,      //  For pagination
                                          @RequestParam(required = false) Integer size) {    //  For pagination
 
+        //  If pagination and status params provided
+        if (page != null && size != null && status != null) {
+            return new ResponseEntity<>(taskService.getTasksByStatusPaginated(status, page, size), HttpStatus.OK);
+        }
+
+        //  If pagination and priority params provided
+        if (page != null && size != null && priority != null) {
+            return new ResponseEntity<>(taskService.getTasksByPriorityPaginated(priority, page, size), HttpStatus.OK);
+        }
+
+        //  If pagination and search params provided
+        if (page != null && size != null && search != null) {
+            return new ResponseEntity<>(taskService.getTaskByTitleContainingIgnoreCasePaginated(search, page, size), HttpStatus.OK);
+        }
+
+        //  If pagination and projectId params provided
+        if (page != null && size != null && projectId != null) {
+            return new ResponseEntity<>(taskService.getTasksByProjectIdPaginated(projectId, page, size), HttpStatus.OK);
+        }
+
         //  If pagination params provided
         if (page != null && size != null) {
-            return new ResponseEntity<>(taskService.getALlTasksPaginated(page, size, sortBy, order), HttpStatus.OK);
+            return new ResponseEntity<>(taskService.getAllTasksPaginated(page, size, sortBy, order), HttpStatus.OK);
         }
 
         //  If status param provided
@@ -63,7 +83,7 @@ public class TaskController {
             return new ResponseEntity<>(taskService.getTasksByProjectId(projectId), HttpStatus.OK);
         }
 
-        //  If soring params provided
+        //  If sorting params provided
         if (sortBy != null) {
             return new ResponseEntity<>(taskService.getAllTasksSorted(sortBy, order), HttpStatus.OK);
         }

@@ -58,7 +58,7 @@ public class TaskService {
         return taskRepository.findAll().stream().map(taskMapper::toResponse).toList();
     }
 
-    public PageResponse<TaskResponse> getALlTasksPaginated(int page, int size, String sortBy, String order) {
+    public PageResponse<TaskResponse> getAllTasksPaginated(int page, int size, String sortBy, String order) {
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, (sortBy != null) ? sortBy : "id");
 
@@ -67,13 +67,15 @@ public class TaskService {
 
         List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
 
-        return new PageResponse<>(taskResponses,
+        return new PageResponse<>(
+                taskResponses,
                 taskPage.getNumber(),
                 taskPage.getSize(),
                 taskPage.getTotalElements(),
                 taskPage.getTotalPages(),
                 taskPage.isFirst(),
-                taskPage.isLast());
+                taskPage.isLast()
+                );
     }
 
     public TaskResponse getTaskById(Long id) {
@@ -108,16 +110,84 @@ public class TaskService {
         return taskRepository.findByStatus(status).stream().map(taskMapper::toResponse).toList();
     }
 
+    public PageResponse<TaskResponse> getTasksByStatusPaginated(Task.Status status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskRepository.findByStatus(status, pageable);
+
+        List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
+
+        return new PageResponse<>(
+                taskResponses,
+                taskPage.getNumber(),
+                taskPage.getSize(),
+                taskPage.getTotalElements(),
+                taskPage.getTotalPages(),
+                taskPage.isFirst(),
+                taskPage.isLast()
+                );
+    }
+
     public List<TaskResponse> getTasksByPriority(Task.Priority priority) {
         return taskRepository.findByPriority(priority).stream().map(taskMapper::toResponse).toList();
+    }
+
+    public PageResponse<TaskResponse> getTasksByPriorityPaginated(Task.Priority priority, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskRepository.findByPriority(priority, pageable);
+
+        List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
+
+        return new PageResponse<>(
+                taskResponses,
+                taskPage.getNumber(),
+                taskPage.getSize(),
+                taskPage.getTotalElements(),
+                taskPage.getTotalPages(),
+                taskPage.isFirst(),
+                taskPage.isLast()
+        );
     }
 
     public List<TaskResponse> getTasksByTitleContainingIgnoreCase(String search) {
         return taskRepository.findByTitleContainingIgnoreCase(search).stream().map(taskMapper::toResponse).toList();
     }
 
+    public PageResponse<TaskResponse> getTaskByTitleContainingIgnoreCasePaginated(String search, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskRepository.findByTitleContainingIgnoreCase(search, pageable);
+
+        List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
+
+        return new PageResponse<>(
+                taskResponses,
+                taskPage.getNumber(),
+                taskPage.getSize(),
+                taskPage.getTotalElements(),
+                taskPage.getTotalPages(),
+                taskPage.isFirst(),
+                taskPage.isLast()
+        );
+    }
+
     public List<TaskResponse> getTasksByProjectId(Long projectId) {
         return taskRepository.findByProjectId(projectId).stream().map(taskMapper::toResponse).toList();
+    }
+
+    public PageResponse<TaskResponse> getTasksByProjectIdPaginated(Long projectId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> taskPage = taskRepository.findByProjectId(projectId, pageable);
+
+        List<TaskResponse> taskResponses = taskPage.getContent().stream().map(taskMapper::toResponse).toList();
+
+        return new PageResponse<>(
+                taskResponses,
+                taskPage.getNumber(),
+                taskPage.getSize(),
+                taskPage.getTotalElements(),
+                taskPage.getTotalPages(),
+                taskPage.isFirst(),
+                taskPage.isLast()
+        );
     }
 
     public List<TaskResponse> getAllTasksSorted(String sortBy, String order) {
