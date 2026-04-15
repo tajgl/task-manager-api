@@ -6,7 +6,6 @@ import com.taj.taskmanager.dto.UpdateTaskRequest;
 import jakarta.validation.Valid;
 import com.taj.taskmanager.service.TaskService;
 import com.taj.taskmanager.model.Task;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
