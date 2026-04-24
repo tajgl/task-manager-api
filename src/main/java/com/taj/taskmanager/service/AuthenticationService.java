@@ -1,11 +1,13 @@
 package com.taj.taskmanager.service;
 
+import com.taj.taskmanager.dto.AuthenticationResponse;
 import com.taj.taskmanager.dto.LoginRequest;
 import com.taj.taskmanager.dto.RegisterRequest;
 import com.taj.taskmanager.model.Role;
 import com.taj.taskmanager.model.UserEntity;
 import com.taj.taskmanager.repository.RoleRepository;
 import com.taj.taskmanager.repository.UserRepository;
+import com.taj.taskmanager.security.JwtGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +27,19 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtGenerator  jwtGenerator;
 
     @Autowired
     public AuthenticationService(AuthenticationManager authenticationManager,
                                  UserRepository userRepository,
                                  RoleRepository roleRepository,
-                                 PasswordEncoder passwordEncoder) {
+                                 PasswordEncoder passwordEncoder,
+                                 JwtGenerator  jwtGenerator) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtGenerator = jwtGenerator;
     }
 
     public ResponseEntity<String> register(RegisterRequest registerRequest) {
@@ -55,13 +60,14 @@ public class AuthenticationService {
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
     }
 
-    public ResponseEntity<String> login(LoginRequest loginRequest) {
+    public ResponseEntity<AuthenticationResponse> login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                 loginRequest.getUsername(),
                 loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return new ResponseEntity<>("User logged in successfully", HttpStatus.OK);
+        String token = jwtGenerator.generateToken(authentication);
+        return new ResponseEntity<>(new AuthenticationResponse(token), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.taj.taskmanager.controller;
 
+import com.taj.taskmanager.dto.AuthenticationResponse;
 import com.taj.taskmanager.dto.LoginRequest;
 import com.taj.taskmanager.dto.RegisterRequest;
 import com.taj.taskmanager.service.AuthenticationService;
@@ -24,7 +25,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest loginRequest) {
         return authenticationService.login(loginRequest);
     }
 }
