@@ -1,5 +1,6 @@
 package com.taj.taskmanager.controller;
 
+import com.taj.taskmanager.dto.LoginRequest;
 import com.taj.taskmanager.dto.RegisterRequest;
 import com.taj.taskmanager.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,5 +21,10 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
         return authenticationService.register(registerRequest);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        return authenticationService.login(loginRequest);
     }
 }

@@ -1,5 +1,6 @@
 package com.taj.taskmanager.service;
 
+import com.taj.taskmanager.dto.LoginRequest;
 import com.taj.taskmanager.dto.RegisterRequest;
 import com.taj.taskmanager.model.Role;
 import com.taj.taskmanager.model.UserEntity;
@@ -9,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -49,5 +53,15 @@ public class AuthenticationService {
         userRepository.save(user);
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
+    }
+
+    public ResponseEntity<String> login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(),
+                loginRequest.getPassword()));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return new ResponseEntity<>("User logged in successfully", HttpStatus.OK);
     }
 }
