@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
-
+    
     List<Task> findByOwner(String owner);
     Page<Task> findByOwner(String owner, Pageable pageable);
 
