@@ -17,6 +17,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String owner;
+
     @NotBlank(message = "Project name is required")
     @Size(max = 100, message = "Project name must be less than 100 characters")
     @Column(nullable = false)
@@ -75,5 +78,13 @@ public class Project {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

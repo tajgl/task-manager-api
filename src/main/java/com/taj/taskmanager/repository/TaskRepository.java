@@ -11,13 +11,18 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    List<Task> findByStatus(Task.Status status);
-    List<Task> findByPriority(Task.Priority priority);
-    List<Task> findByTitleContainingIgnoreCase(String search);
-    List<Task> findByProjectId(Long projectId);
+    List<Task> findByOwner(String owner);
+    Page<Task> findByOwner(String owner, Pageable pageable);
 
-    Page<Task> findByStatus(Task.Status status, Pageable pageable);
-    Page<Task> findByPriority(Task.Priority priority, Pageable pageable);
-    Page<Task> findByTitleContainingIgnoreCase(String search, Pageable pageable);
-    Page<Task> findByProjectId(Long projectId, Pageable pageable);
+    List<Task> findByOwnerAndStatus(String owner, Task.Status status);
+    Page<Task> findByOwnerAndStatus(String owner, Task.Status status, Pageable pageable);
+
+    List<Task> findByOwnerAndPriority(String owner, Task.Priority priority);
+    Page<Task> findByOwnerAndPriority(String owner, Task.Priority priority, Pageable pageable);
+
+    List<Task> findByOwnerAndTitleContainingIgnoreCase(String owner, String title);
+    Page<Task> findByOwnerAndTitleContainingIgnoreCase(String owner, String title, Pageable pageable);
+
+    List<Task> findByOwnerAndProjectId(String owner, Long projectId);
+    Page<Task> findByOwnerAndProjectId(String owner, Long projectId, Pageable pageable);
 }

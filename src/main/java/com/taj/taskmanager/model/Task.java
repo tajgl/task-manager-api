@@ -15,6 +15,9 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String owner;
+
     @NotBlank(message = "Title is required")
     @Size(max = 200, message = "Title must be less that 200 characters")
     @Column(nullable = false)
@@ -113,5 +116,13 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }
