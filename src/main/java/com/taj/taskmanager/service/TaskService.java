@@ -12,12 +12,14 @@ import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.ProjectRepository;
 import com.taj.taskmanager.repository.TaskRepository;
 import com.taj.taskmanager.util.SecurityUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -88,7 +90,7 @@ public class TaskService {
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
 
         if (!task.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         return taskMapper.toResponse(task);
@@ -98,7 +100,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
 
         if (!task.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         taskMapper.updateEntity(task, request);
@@ -115,7 +117,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task does not exist"));
 
         if (!task.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         taskRepository.delete(task);

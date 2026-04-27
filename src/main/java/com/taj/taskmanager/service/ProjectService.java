@@ -8,6 +8,7 @@ import com.taj.taskmanager.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,7 +37,7 @@ public class ProjectService {
         Project project = projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         return project;
@@ -47,7 +48,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         if (updatedProject.getName() != null && !updatedProject.getName().isEmpty() && !Objects.equals(project.getName(), updatedProject.getName())) {
@@ -65,7 +66,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
 
         projectRepository.delete(project);
@@ -75,7 +76,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new AccessDeniedException("Access denied");
         }
         
         return project.getTasks();
