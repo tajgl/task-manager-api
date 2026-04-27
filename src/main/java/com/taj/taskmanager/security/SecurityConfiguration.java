@@ -1,6 +1,5 @@
 package com.taj.taskmanager.security;
 
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +19,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private final JwtAuthentication jwtAuthentication;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
-    public SecurityConfiguration(CustomUserDetailsService userDetailsService, JwtAuthentication jwtAuthentication,  JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfiguration(CustomUserDetailsService userDetailsService, AuthenticationEntryPoint authenticationEntryPoint, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.userDetailsService = userDetailsService;
-        this.jwtAuthentication = jwtAuthentication;
+        this.authenticationEntryPoint = authenticationEntryPoint;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
@@ -36,7 +35,7 @@ public class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthentication))
+                        .authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
