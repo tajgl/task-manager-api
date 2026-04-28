@@ -10,3 +10,9 @@ spring:
 jwt:
   secret: your_jwt_secret_here
   expiration: 86400000
+
+# Groq AI (get your free key at console.groq.com)
+groq:
+  api-key: your_groq_api_key_here
+  base-url: https://api.groq.com/openai/v1
+  model: llama-3.1-8b-instant
