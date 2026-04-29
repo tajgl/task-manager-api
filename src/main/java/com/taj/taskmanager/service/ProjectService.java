@@ -1,5 +1,7 @@
 package com.taj.taskmanager.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.taj.taskmanager.dto.RiskAssessmentResponse;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
@@ -7,19 +9,20 @@ import com.taj.taskmanager.repository.ProjectRepository;
 import com.taj.taskmanager.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class ProjectService {
+
     private final ProjectRepository projectRepository;
     private final GroqService groqService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public ProjectService(ProjectRepository projectRepository, GroqService groqService) {
@@ -85,14 +88,22 @@ public class ProjectService {
         return project.getTasks();
     }
 
-    public String assessRisk(Long projectId) {
+    public RiskAssessmentResponse assessRisk(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
         List<Task> tasks = project.getTasks();
-
         String prompt = buildPrompt(project, tasks);
+        String aiResponse = groqService.chat(prompt);
 
-        return groqService.chat(prompt);
+        try {
+            RiskAssessmentResponse response = objectMapper.readValue(aiResponse, RiskAssessmentResponse.class);
+            response.setProjectId(projectId);
+            response.setProjectName(project.getName());
+            response.setAssessedAt(LocalDateTime.now());
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse AI response" + aiResponse);
+        }
     }
 
     // Helper for assessRisk
@@ -116,17 +127,21 @@ public class ProjectService {
                 .count();
 
         return String.format("""
-                You are a project risk assessment assistant. Analyze the following project and respond with:
-                1. Risk Level: LOW, MEDIUM, or HIGH
-                2. A 2-3 sentence explanation of why
-                3. One actionable recommendation
-                
+                You are a project risk assessment assistant.Analyze the following project data and respond ONLY with a JSON object.
+                No extra text, no markdown, no code blocks. Just raw JSON.
+                Use exactly these fields:
+                {
+                "riskLevel": "LOW" | "MEDIUM" | "HIGH",
+                "explanation": "2-3 sentence explanation",
+                "recommendation": "one actionable recommendation"
+                }
+               \s
                 Project: %s
                 Total tasks: %d
                 Completed tasks: %d
                 Incomplete overdue tasks: %d
                 Incomplete high priority tasks: %d
-                """,
+              \s""",
                 project.getName(), tasks.size(), completed, overdue, highPriority);
     }
 }

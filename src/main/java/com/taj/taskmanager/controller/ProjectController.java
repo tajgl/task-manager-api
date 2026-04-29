@@ -1,5 +1,6 @@
 package com.taj.taskmanager.controller;
 
+import com.taj.taskmanager.dto.RiskAssessmentResponse;
 import jakarta.validation.Valid;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
@@ -54,7 +55,7 @@ public class ProjectController {
     }
 
     @GetMapping(path = "{projectId}/risk-assessment")
-    public ResponseEntity<String> getRiskAssessment(@PathVariable Long projectId) {
+    public ResponseEntity<RiskAssessmentResponse> getRiskAssessment(@PathVariable Long projectId) {
         return new ResponseEntity<>(projectService.assessRisk(projectId), HttpStatus.OK);
     }
 }
