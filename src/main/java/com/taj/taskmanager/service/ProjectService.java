@@ -99,16 +99,20 @@ public class ProjectService {
     private String buildPrompt(Project project, List<Task> tasks) {
         LocalDate today = LocalDate.now();
 
-        long overdue = tasks.stream()
+        long completed = tasks.stream()
+                .filter(t -> Task.Status.COMPLETED.equals(t.getStatus()))
+                .count();
+
+        List<Task> incompleteTasks = tasks.stream()
+                .filter(t -> !Task.Status.COMPLETED.equals(t.getStatus()))
+                .toList();
+
+        long overdue = incompleteTasks.stream()
                 .filter(t -> t.getDueDate() != null && t.getDueDate().isBefore(today))
                 .count();
 
-        long highPriority = tasks.stream()
+        long highPriority = incompleteTasks.stream()
                 .filter(t -> Task.Priority.HIGH.equals(t.getPriority()))
-                .count();
-
-        long completed = tasks.stream()
-                .filter(t -> Task.Status.COMPLETED.equals(t.getStatus()))
                 .count();
 
         return String.format("""
@@ -120,8 +124,8 @@ public class ProjectService {
                 Project: %s
                 Total tasks: %d
                 Completed tasks: %d
-                Overdue tasks: %d
-                High priority tasks: %d
+                Incomplete overdue tasks: %d
+                Incomplete high priority tasks: %d
                 """,
                 project.getName(), tasks.size(), completed, overdue, highPriority);
     }
