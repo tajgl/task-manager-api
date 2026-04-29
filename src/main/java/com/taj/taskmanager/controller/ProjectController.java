@@ -52,4 +52,9 @@ public class ProjectController {
     public ResponseEntity<List<Task>> getTasksByProjectId(@PathVariable Long projectId) {
         return new ResponseEntity<>(projectService.getTasksByProjectId(projectId), HttpStatus.OK);
     }
+
+    @GetMapping(path = "{projectId}/risk-assessment")
+    public ResponseEntity<String> getRiskAssessment(@PathVariable Long projectId) {
+        return new ResponseEntity<>(projectService.assessRisk(projectId), HttpStatus.OK);
+    }
 }
