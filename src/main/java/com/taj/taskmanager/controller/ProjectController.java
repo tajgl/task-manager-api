@@ -1,6 +1,6 @@
 package com.taj.taskmanager.controller;
 
-import com.taj.taskmanager.dto.RiskAssessmentResponse;
+import com.taj.taskmanager.dto.*;
 import jakarta.validation.Valid;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
@@ -24,23 +24,23 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-        return new ResponseEntity<>(projectService.createProject(project), HttpStatus.CREATED);
+    public ResponseEntity<ProjectResponse> createProject(@Valid @RequestBody CreateProjectRequest request) {
+        return new ResponseEntity<>(projectService.createProject(request), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<Project>> getAllProjects() {
+    public ResponseEntity<List<ProjectResponse>> getAllProjects() {
         return new ResponseEntity<>(projectService.getAllProjects(), HttpStatus.OK);
     }
 
     @GetMapping(path="{projectId}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long projectId) {
+    public ResponseEntity<ProjectResponse> getProjectById(@PathVariable Long projectId) {
         return new ResponseEntity<>(projectService.getProjectById(projectId), HttpStatus.OK);
     }
 
     @PutMapping(path="{projectId}")
-    public ResponseEntity<Project> updateProject(@PathVariable Long projectId, @RequestBody Project project) {
-        return new ResponseEntity<>(projectService.updateProject(projectId, project), HttpStatus.OK);
+    public ResponseEntity<ProjectResponse> updateProject(@PathVariable Long projectId, @RequestBody UpdateProjectRequest request) {
+        return new ResponseEntity<>(projectService.updateProject(projectId, request), HttpStatus.OK);
     }
 
     @DeleteMapping(path="{projectId}")
@@ -50,7 +50,7 @@ public class ProjectController {
     }
 
     @GetMapping(path="{projectId}/tasks")
-    public ResponseEntity<List<Task>> getTasksByProjectId(@PathVariable Long projectId) {
+    public ResponseEntity<List<TaskResponse>> getTasksByProjectId(@PathVariable Long projectId) {
         return new ResponseEntity<>(projectService.getTasksByProjectId(projectId), HttpStatus.OK);
     }
 

@@ -1,8 +1,10 @@
 package com.taj.taskmanager.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.taj.taskmanager.dto.RiskAssessmentResponse;
+import com.taj.taskmanager.dto.*;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
+import com.taj.taskmanager.mapper.ProjectMapper;
+import com.taj.taskmanager.mapper.TaskMapper;
 import com.taj.taskmanager.model.Project;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.ProjectRepository;
@@ -22,50 +24,51 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final GroqService groqService;
+    private final ProjectMapper projectMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final TaskMapper taskMapper;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, GroqService groqService) {
+    public ProjectService(ProjectRepository projectRepository, GroqService groqService, ProjectMapper projectMapper, TaskMapper taskMapper) {
         this.projectRepository = projectRepository;
         this.groqService = groqService;
+        this.projectMapper = projectMapper;
+        this.taskMapper = taskMapper;
     }
 
-    public Project createProject(Project project) {
+    public ProjectResponse createProject(CreateProjectRequest request) {
+        Project project = projectMapper.toEntity(request);
+
         project.setOwner(SecurityUtils.getCurrentUsername());
-        return projectRepository.save(project);
+
+        return projectMapper.toResponse(projectRepository.save(project));
     }
 
-    public List<Project> getAllProjects() {
-        return projectRepository.findByOwner(SecurityUtils.getCurrentUsername());
+    public List<ProjectResponse> getAllProjects() {
+        return projectRepository.findByOwner(SecurityUtils.getCurrentUsername()).stream().map(projectMapper::toResponse).toList();
     }
 
-    public Project getProjectById(Long id) {
+    public ProjectResponse getProjectById(Long id) {
         Project project = projectRepository.findById(id).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
             throw new AccessDeniedException("Access denied");
         }
 
-        return project;
+        return projectMapper.toResponse(project);
     }
 
     @Transactional
-    public Project updateProject(Long projectId, Project updatedProject) {
+    public ProjectResponse updateProject(Long projectId, UpdateProjectRequest request) {
         Project project = projectRepository.findById(projectId).orElseThrow(()-> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
             throw new AccessDeniedException("Access denied");
         }
 
-        if (updatedProject.getName() != null && !updatedProject.getName().isEmpty() && !Objects.equals(project.getName(), updatedProject.getName())) {
-            project.setName(updatedProject.getName());
-        }
+        projectMapper.updateEntity(project, request);
 
-        if (updatedProject.getDescription() != null && !Objects.equals(project.getDescription(), updatedProject.getDescription())) {
-            project.setDescription(updatedProject.getDescription());
-        }
-
-        return project;
+        return projectMapper.toResponse(projectRepository.save(project));
     }
 
     public void deleteProject(Long projectId) {
@@ -74,18 +77,19 @@ public class ProjectService {
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
             throw new AccessDeniedException("Access denied");
         }
-
-        projectRepository.delete(project);
+        else {
+            projectRepository.deleteById(projectId);
+        }
     }
 
-    public List<Task> getTasksByProjectId(Long projectId) {
+    public List<TaskResponse> getTasksByProjectId(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
             throw new AccessDeniedException("Access denied");
         }
         
-        return project.getTasks();
+        return project.getTasks().stream().map(taskMapper::toResponse).toList();
     }
 
     public RiskAssessmentResponse assessRisk(Long projectId) {
