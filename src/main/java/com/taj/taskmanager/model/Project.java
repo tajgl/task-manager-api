@@ -41,5 +41,4 @@ public class Project {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
 }

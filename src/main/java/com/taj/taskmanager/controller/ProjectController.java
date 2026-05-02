@@ -58,4 +58,9 @@ public class ProjectController {
     public ResponseEntity<RiskAssessmentResponse> getRiskAssessment(@PathVariable Long projectId) {
         return new ResponseEntity<>(projectService.assessRisk(projectId), HttpStatus.OK);
     }
+
+    @GetMapping(path = "{projectId}/risk-assessment/history")
+    public ResponseEntity<List<RiskAssessmentResponse>> getRiskAssessmentHistory(@PathVariable Long projectId) {
+        return new ResponseEntity<>(projectService.getRiskAssessmentHistory(projectId), HttpStatus.OK);
+    }
 }

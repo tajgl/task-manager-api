@@ -6,9 +6,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@JsonPropertyOrder({"projectId", "projectName", "riskLevel", "explanation", "recommendation", "assessedAt"})
+@JsonPropertyOrder({"id", "projectId", "projectName", "riskLevel", "explanation", "recommendation", "assessedAt"})
 public class RiskAssessmentResponse {
 
+    private Long id;
     private Long projectId;
     private String projectName;
     private String riskLevel;

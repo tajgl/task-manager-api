@@ -6,8 +6,10 @@ import com.taj.taskmanager.exception.ProjectNotFoundException;
 import com.taj.taskmanager.mapper.ProjectMapper;
 import com.taj.taskmanager.mapper.TaskMapper;
 import com.taj.taskmanager.model.Project;
+import com.taj.taskmanager.model.RiskAssessment;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.repository.ProjectRepository;
+import com.taj.taskmanager.repository.RiskAssessmentRepository;
 import com.taj.taskmanager.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ProjectService {
@@ -27,13 +27,15 @@ public class ProjectService {
     private final ProjectMapper projectMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final TaskMapper taskMapper;
+    private final RiskAssessmentRepository riskAssessmentRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, GroqService groqService, ProjectMapper projectMapper, TaskMapper taskMapper) {
+    public ProjectService(ProjectRepository projectRepository, GroqService groqService, ProjectMapper projectMapper, TaskMapper taskMapper, RiskAssessmentRepository riskAssessmentRepository) {
         this.projectRepository = projectRepository;
         this.groqService = groqService;
         this.projectMapper = projectMapper;
         this.taskMapper = taskMapper;
+        this.riskAssessmentRepository = riskAssessmentRepository;
     }
 
     public ProjectResponse createProject(CreateProjectRequest request) {
@@ -95,16 +97,31 @@ public class ProjectService {
     public RiskAssessmentResponse assessRisk(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
+        if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
         List<Task> tasks = project.getTasks();
         String prompt = buildPrompt(project, tasks);
         String aiResponse = groqService.chat(prompt);
 
         try {
             RiskAssessmentResponse response = objectMapper.readValue(aiResponse, RiskAssessmentResponse.class);
-            response.setProjectId(projectId);
+
+            RiskAssessment report = new RiskAssessment();
+            report.setProject(project);
+            report.setRiskLevel(response.getRiskLevel());
+            report.setExplanation(response.getExplanation());
+            report.setRecommendation(response.getRecommendation());
+            RiskAssessment savedReport = riskAssessmentRepository.save(report);
+
+            response.setId(savedReport.getId());
+            response.setProjectId(project.getId());
             response.setProjectName(project.getName());
-            response.setAssessedAt(LocalDateTime.now());
+            response.setAssessedAt(savedReport.getAssessedAt());
+
             return response;
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse AI response" + aiResponse);
         }
@@ -147,5 +164,28 @@ public class ProjectService {
                 Incomplete high priority tasks: %d
               \s""",
                 project.getName(), tasks.size(), completed, overdue, highPriority);
+    }
+
+    public List<RiskAssessmentResponse> getRiskAssessmentHistory(Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
+
+        if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        return riskAssessmentRepository.findByProjectIdOrderByAssessedAtDesc(projectId)
+                .stream()
+                .map(r -> {
+                    RiskAssessmentResponse response = new RiskAssessmentResponse();
+                    response.setId(r.getId());
+                    response.setProjectId(projectId);
+                    response.setProjectName(r.getProject().getName());
+                    response.setRiskLevel(r.getRiskLevel());
+                    response.setExplanation(r.getExplanation());
+                    response.setRecommendation(r.getRecommendation());
+                    response.setAssessedAt(r.getAssessedAt());
+                    return response;
+                })
+                .toList();
     }
 }
