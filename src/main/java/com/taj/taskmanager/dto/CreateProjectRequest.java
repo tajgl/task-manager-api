@@ -3,8 +3,10 @@ package com.taj.taskmanager.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class CreateProjectRequest {
 
     @NotBlank(message = "Project name is required")

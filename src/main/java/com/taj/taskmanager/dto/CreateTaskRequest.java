@@ -3,8 +3,13 @@ package com.taj.taskmanager.dto;
 import com.taj.taskmanager.model.Task;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
 public class CreateTaskRequest {
 
     @NotBlank(message = "Title is required")
@@ -20,56 +25,5 @@ public class CreateTaskRequest {
 
     private Task.Status status;     // Optional - will default to TODO
 
-    private Long projectId;     // Just the ID, not the whole object
-
-    public CreateTaskRequest() {
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDate dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public Task.Priority getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Task.Priority priority) {
-        this.priority = priority;
-    }
-
-    public Task.Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Task.Status status) {
-        this.status = status;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
-    }
+    private Long projectId;
 }

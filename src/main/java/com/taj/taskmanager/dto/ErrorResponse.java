@@ -1,4 +1,4 @@
-package com.taj.taskmanager.exception;
+package com.taj.taskmanager.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;

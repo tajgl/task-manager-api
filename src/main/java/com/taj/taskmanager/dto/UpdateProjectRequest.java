@@ -2,8 +2,10 @@ package com.taj.taskmanager.dto;
 
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class UpdateProjectRequest {
 
     @Size(max = 100, message = "Project name must be less than 100 characters")

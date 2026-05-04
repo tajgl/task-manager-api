@@ -1,14 +1,17 @@
 package com.taj.taskmanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.taj.taskmanager.model.Task;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@JsonPropertyOrder({"id", "title", "description", "dueDate", "priority", "status", "project", "createdAt"})
 public class TaskResponse {
 
     private Long id;
@@ -21,19 +24,12 @@ public class TaskResponse {
     private ProjectSummary project;     // Nested DTO for project
 
     // Nested DTO to avoid circular references
-    @Setter
-    @Getter
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ProjectSummary {
         private Long id;
         private String name;
-
-        public ProjectSummary() {
-        }
-
-        public ProjectSummary(Long id, String name) {
-            this.id = id;
-            this.name = name;
-        }
 
     }
 }

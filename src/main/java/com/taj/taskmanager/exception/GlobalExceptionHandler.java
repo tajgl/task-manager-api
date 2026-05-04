@@ -1,5 +1,6 @@
 package com.taj.taskmanager.exception;
 
+import com.taj.taskmanager.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
