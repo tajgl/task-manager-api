@@ -65,18 +65,30 @@ class ProjectRepositoryTest {
     }
 
     @Test
-    void findALl_shouldReturnAllProjects() {
+    void findByOwner_shouldReturnOnlyProjectsForThatOwner() {
         // ARRANGE
-        Project second = new Project();
-        second.setName("Mobile App");
-        second.setOwner("testuser");
-        projectRepository.save(second);
+        Project otherProject = new Project();
+        otherProject.setName("Mobile App");
+        otherProject.setDescription("iOS and Android app");
+        otherProject.setOwner("otheruser");
+        projectRepository.save(otherProject);
 
-        //ACT
-        List<Project> projects = projectRepository.findAll();
+        // ACT
+        List<Project> projects = projectRepository.findByOwner("testuser");
 
-        // ASSERT
-        assertThat(projects).hasSize(2);
+        // ARRANGE
+        assertThat(projects).hasSize(1);
+        assertThat(projects.get(0).getName()).isEqualTo("Website Redesign");
+        assertThat(projects.get(0).getOwner()).isEqualTo("testuser");
+    }
+
+    @Test
+    void findByOwner_shouldReturnEmpty_whenOwnerHasNoProjects() {
+        // ACT
+        List<Project> results = projectRepository.findByOwner("nobody");
+
+        // ASSERT — empty list, not null, not an exception
+        assertThat(results).isEmpty();
     }
 
     @Test
