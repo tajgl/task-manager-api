@@ -69,7 +69,6 @@ public class ProjectServiceTest {
         project = new Project();
         project.setId(1L);
         project.setName("Website Redesign");
-        project.setOwner("testuser");
 
         projectResponse = new ProjectResponse();
         projectResponse.setId(1L);
@@ -92,6 +91,7 @@ public class ProjectServiceTest {
         ProjectResponse result = projectService.createProject(createRequest);
 
         // ASSERT
+        assertThat(project.getOwner()).isEqualTo("testuser");
         assertThat(result).isNotNull();
         assertThat(result.getName()).isEqualTo("Website Redesign");
         verify(projectRepository, times(1)).save(project);
