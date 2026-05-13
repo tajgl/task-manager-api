@@ -69,6 +69,7 @@ public class ProjectServiceTest {
         project = new Project();
         project.setId(1L);
         project.setName("Website Redesign");
+        project.setOwner("testuser");
 
         projectResponse = new ProjectResponse();
         projectResponse.setId(1L);
@@ -83,6 +84,7 @@ public class ProjectServiceTest {
     @Test
     void createProject_shouldSetOwnerAndReturnResponse() {
         // ARRANGE
+        project.setOwner(null);
         when(projectMapper.toEntity(createRequest)).thenReturn(project);
         when(projectRepository.save(project)).thenReturn(project);
         when(projectMapper.toResponse(project)).thenReturn(projectResponse);
@@ -110,6 +112,17 @@ public class ProjectServiceTest {
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getName()).isEqualTo("Website Redesign");
         verify(projectRepository, times(1)).findByOwner("testuser");
+    }
+
+    @Test
+    void getProjectById_shouldReturnResponse_whenOwnerMatches() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectMapper.toResponse(project)).thenReturn(projectResponse);
+
+        ProjectResponse result = projectService.getProjectById(1L);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1L);
     }
 
 }
