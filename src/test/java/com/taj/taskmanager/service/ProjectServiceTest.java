@@ -125,4 +125,26 @@ public class ProjectServiceTest {
         assertThat(result.getId()).isEqualTo(1L);
     }
 
+    @Test
+    void getProjectById_shouldThrowProjectNotFoundException_whenProjectNotFound() {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> projectService.getProjectById(99L))
+                .isInstanceOf(ProjectNotFoundException.class)
+                .hasMessage("Project does not exist");
+
+        verify(projectRepository, times(1)).findById(99L);
+    }
+
+    @Test
+    void getProjectById_shouldThrowAccessDeniedException_whenOwnerDoesNotMatch() {
+        project.setOwner("anotheruser");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertThatThrownBy(() -> projectService.getProjectById(1L))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Access denied");
+
+        verify(projectRepository, times(1)).findById(1L);
+    }
 }
