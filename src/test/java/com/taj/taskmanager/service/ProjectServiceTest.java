@@ -97,4 +97,19 @@ public class ProjectServiceTest {
         verify(projectRepository, times(1)).save(project);
     }
 
+    @Test
+    void getAllProjects_shouldReturnOnlyCurrentUsersProjects() {
+        // ARRANGE
+        when(projectRepository.findByOwner("testuser")).thenReturn(List.of(project));
+        when(projectMapper.toResponse(project)).thenReturn(projectResponse);
+
+        // ACT
+        List<ProjectResponse> results = projectService.getAllProjects();
+
+        // ASSERT
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getName()).isEqualTo("Website Redesign");
+        verify(projectRepository, times(1)).findByOwner("testuser");
+    }
+
 }
