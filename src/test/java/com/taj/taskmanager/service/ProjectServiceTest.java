@@ -147,4 +147,43 @@ public class ProjectServiceTest {
 
         verify(projectRepository, times(1)).findById(1L);
     }
+
+    @Test
+    void updateProject_shouldUpdateAndReturnResponse_whenOwnerMatches() {
+        UpdateProjectRequest updateRequest = new UpdateProjectRequest();
+        updateRequest.setProjectName("Updated Name");
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(projectRepository.save(project)).thenReturn(project);
+        when(projectMapper.toResponse(project)).thenReturn(projectResponse);
+
+        ProjectResponse result = projectService.updateProject(1L, updateRequest);
+
+        assertThat(result).isNotNull();
+        verify(projectMapper, times(1)).updateEntity(project, updateRequest);
+        verify(projectRepository, times(1)).save(project);
+    }
+
+    @Test
+    void updateProject_shouldThrowProjectNotFoundException_whenProjectNotFound() {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> projectService.updateProject(99L, new UpdateProjectRequest()))
+                .isInstanceOf(ProjectNotFoundException.class)
+                .hasMessage("Project does not exist");
+
+        verify(projectRepository, times(1)).findById(99L);
+    }
+
+    @Test
+    void updateProject_shouldThrowAccessDeniedException_whenOwnerDoesNotMatch() {
+        project.setOwner("anotheruser");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertThatThrownBy(() -> projectService.updateProject(1L, new UpdateProjectRequest()))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Access denied");
+
+        verify(projectRepository, times(1)).findById(1L);
+    }
 }
