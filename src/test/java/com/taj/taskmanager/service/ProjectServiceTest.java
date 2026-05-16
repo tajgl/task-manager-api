@@ -210,4 +210,42 @@ public class ProjectServiceTest {
 
         verify(projectRepository, never()).deleteById(any());
     }
+
+    @Test
+    void getRiskAssessmentHistory_shouldReturnHistory_whenOwnerMatches() {
+        RiskAssessment report = new  RiskAssessment();
+        report.setId(1L);
+        report.setProject(project);
+        report.setRiskLevel("HIGH");
+        report.setExplanation("Two overdue tasks");
+        report.setRecommendation("Prioritize overdue tasks");
+        report.setAssessedAt(LocalDateTime.now());
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(riskAssessmentRepository.findByProjectIdOrderByAssessedAtDesc(1L)).thenReturn(List.of(report));
+
+        List<RiskAssessmentResponse> results = projectService.getRiskAssessmentHistory(1L);
+
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getProjectId()).isEqualTo(1L);
+    }
+
+    @Test
+    void getRiskAssessmentHistory_shouldThrowProjectNotFoundException_whenProjectNotFound() {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> projectService.getRiskAssessmentHistory(99L))
+                .isInstanceOf(ProjectNotFoundException.class)
+                .hasMessage("Project does not exist");
+    }
+
+    @Test
+    void getRiskAssessmentHistory_shouldThrowAccessDeniedException_whenOwnerDoesNotMatch() {
+        project.setOwner("anotheruser");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertThatThrownBy(() -> projectService.getRiskAssessmentHistory(1L))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Access denied");
+    }
 }
