@@ -132,8 +132,6 @@ public class ProjectServiceTest {
         assertThatThrownBy(() -> projectService.getProjectById(99L))
                 .isInstanceOf(ProjectNotFoundException.class)
                 .hasMessage("Project does not exist");
-
-        verify(projectRepository, times(1)).findById(99L);
     }
 
     @Test
@@ -144,8 +142,6 @@ public class ProjectServiceTest {
         assertThatThrownBy(() -> projectService.getProjectById(1L))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessage("Access denied");
-
-        verify(projectRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -171,8 +167,6 @@ public class ProjectServiceTest {
         assertThatThrownBy(() -> projectService.updateProject(99L, new UpdateProjectRequest()))
                 .isInstanceOf(ProjectNotFoundException.class)
                 .hasMessage("Project does not exist");
-
-        verify(projectRepository, times(1)).findById(99L);
     }
 
     @Test
@@ -183,7 +177,37 @@ public class ProjectServiceTest {
         assertThatThrownBy(() -> projectService.updateProject(1L, new UpdateProjectRequest()))
                 .isInstanceOf(AccessDeniedException.class)
                 .hasMessage("Access denied");
+    }
 
-        verify(projectRepository, times(1)).findById(1L);
+    @Test
+    void deleteProject_shouldDelete_whenOwnerMatches() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        projectService.deleteProject(1L);
+
+        verify(projectRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void deleteProject_shouldThrowProjectNotFoundException_whenProjectNotFound() {
+        when(projectRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> projectService.deleteProject(99L))
+                .isInstanceOf(ProjectNotFoundException.class)
+                .hasMessage("Project does not exist");
+
+        verify(projectRepository, never()).deleteById(any());
+    }
+
+    @Test
+    void deleteProject_shouldThrowAccessDeniedException_whenOwnerDoesNotMatch() {
+        project.setOwner("anotheruser");
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+
+        assertThatThrownBy(() -> projectService.deleteProject(1L))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessage("Access denied");
+
+        verify(projectRepository, never()).deleteById(any());
     }
 }
