@@ -2,8 +2,10 @@ package com.taj.taskmanager.controller;
 
 import com.taj.taskmanager.dto.CreateProjectRequest;
 import com.taj.taskmanager.dto.ProjectResponse;
+import com.taj.taskmanager.dto.TaskResponse;
 import com.taj.taskmanager.dto.UpdateProjectRequest;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
+import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.security.JwtAuthenticationFilter;
 import com.taj.taskmanager.security.JwtGenerator;
 import com.taj.taskmanager.service.ProjectService;
@@ -48,6 +50,7 @@ public class ProjectControllerTest {
 
     private ProjectResponse projectResponse;
     private CreateProjectRequest createRequest;
+    private TaskResponse task;
 
     @BeforeEach
     public void setup() {
@@ -58,7 +61,13 @@ public class ProjectControllerTest {
         projectResponse = new ProjectResponse();
         projectResponse.setId(1L);
         projectResponse.setName("Website Redesign");
+
+        task = new TaskResponse();
+        task.setId(1L);
+        task.setTitle("Design mockups");
     }
+
+    //-------------------------------createProject--------------------------------
 
     @Test
     public void createProject_shouldReturn201AndProjectResponse() throws Exception {
@@ -72,6 +81,8 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.name").value("Website Redesign"));
     }
 
+    //-------------------------------getAllProjects--------------------------------
+
     @Test
     public void getAllProjects_shouldReturn200AndListOfProjects() throws Exception {
         when(projectService.getAllProjects()).thenReturn(List.of(projectResponse));
@@ -82,6 +93,8 @@ public class ProjectControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].name").value("Website Redesign"));
     }
+
+    //-------------------------------getProjectById--------------------------------
 
     @Test
     public void getProjectById_shouldReturn200AndProjectResponse() throws Exception {
@@ -108,6 +121,8 @@ public class ProjectControllerTest {
         mockMvc.perform(get("/api/projects/{id}", 1L))
                 .andExpect(status().isForbidden());
     }
+
+    //-------------------------------updateProject--------------------------------
 
     @Test
     public void updateProject_shouldReturn200AndUpdatedResponse() throws Exception {
@@ -150,6 +165,8 @@ public class ProjectControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    //-------------------------------deleteProject--------------------------------
+
     @Test
     public void deleteProject_shouldReturn204() throws Exception {
         doNothing().when(projectService).deleteProject(1L);
@@ -173,4 +190,38 @@ public class ProjectControllerTest {
         mockMvc.perform(delete("/api/projects/{id}", 1L))
                 .andExpect(status().isForbidden());
     }
+
+
+    //-------------------------------getTasksByProjectId--------------------------------
+
+    @Test
+    public void getTasksByProjectId_shouldReturn200AndListOfTasks() throws Exception {
+        when(projectService.getTasksByProjectId(1L)).thenReturn(List.of(task));
+
+        mockMvc.perform(get("/api/projects/{id}/tasks", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Design mockups"));
+    }
+
+    @Test
+    public void getTasksByProjectId_shouldReturn404_whenProjectNotFound() throws Exception {
+        when(projectService.getTasksByProjectId(99L)).thenThrow(new ProjectNotFoundException("Project does not exist"));
+
+        mockMvc.perform(get("/api/projects/{id}/tasks", 99L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getTasksByProjectId_shouldReturn403_whenAccessDenied() throws Exception {
+        when(projectService.getTasksByProjectId(1L)).thenThrow(new AccessDeniedException("Access denied"));
+
+        mockMvc.perform(get("/api/projects/{id}/tasks", 1L))
+                .andExpect(status().isForbidden());
+    }
+
+    //-------------------------------getRiskAssessment--------------------------------
+
+
 }
