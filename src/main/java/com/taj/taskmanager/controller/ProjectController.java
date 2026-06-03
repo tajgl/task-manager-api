@@ -2,8 +2,6 @@ package com.taj.taskmanager.controller;
 
 import com.taj.taskmanager.dto.*;
 import jakarta.validation.Valid;
-import com.taj.taskmanager.model.Project;
-import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,7 +54,7 @@ public class ProjectController {
 
     @GetMapping(path = "{projectId}/risk-assessment")
     public ResponseEntity<RiskAssessmentResponse> getRiskAssessment(@PathVariable Long projectId) {
-        return new ResponseEntity<>(projectService.assessRisk(projectId), HttpStatus.OK);
+        return new ResponseEntity<>(projectService.getRiskAssessment(projectId), HttpStatus.OK);
     }
 
     @GetMapping(path = "{projectId}/risk-assessment/history")

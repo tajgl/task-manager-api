@@ -1,9 +1,6 @@
 package com.taj.taskmanager.controller;
 
-import com.taj.taskmanager.dto.CreateProjectRequest;
-import com.taj.taskmanager.dto.ProjectResponse;
-import com.taj.taskmanager.dto.TaskResponse;
-import com.taj.taskmanager.dto.UpdateProjectRequest;
+import com.taj.taskmanager.dto.*;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
 import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.security.JwtAuthenticationFilter;
@@ -50,7 +47,6 @@ public class ProjectControllerTest {
 
     private ProjectResponse projectResponse;
     private CreateProjectRequest createRequest;
-    private TaskResponse task;
 
     @BeforeEach
     public void setup() {
@@ -61,10 +57,6 @@ public class ProjectControllerTest {
         projectResponse = new ProjectResponse();
         projectResponse.setId(1L);
         projectResponse.setName("Website Redesign");
-
-        task = new TaskResponse();
-        task.setId(1L);
-        task.setTitle("Design mockups");
     }
 
     //-------------------------------createProject--------------------------------
@@ -196,6 +188,9 @@ public class ProjectControllerTest {
 
     @Test
     public void getTasksByProjectId_shouldReturn200AndListOfTasks() throws Exception {
+        TaskResponse task = new TaskResponse();
+        task.setId(1L);
+        task.setTitle("Design mockups");
         when(projectService.getTasksByProjectId(1L)).thenReturn(List.of(task));
 
         mockMvc.perform(get("/api/projects/{id}/tasks", 1L))
@@ -223,5 +218,34 @@ public class ProjectControllerTest {
 
     //-------------------------------getRiskAssessment--------------------------------
 
+    @Test
+    public void getRiskAssessment_shouldReturn200AndListOfRiskResponse() throws Exception {
+        RiskAssessmentResponse riskAssessmentResponse = new RiskAssessmentResponse();
+        riskAssessmentResponse.setRiskLevel("HIGH");
+        riskAssessmentResponse.setId(1L);
+        when(projectService.getRiskAssessment(1L)).thenReturn(riskAssessmentResponse);
 
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.riskLevel").value("HIGH"))
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    public void getRiskAssessment_shouldReturn404_whenProjectNotFound() throws Exception {
+        when(projectService.getRiskAssessment(99L))
+                .thenThrow(new ProjectNotFoundException("Project does not exist"));
+
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment", 99L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getRiskAssessment_shouldReturn403_whenAccessDenied() throws Exception {
+        when(projectService.getRiskAssessment(1L))
+                .thenThrow(new AccessDeniedException("Access denied"));
+
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment", 1L))
+                .andExpect(status().isForbidden());
+    }
 }

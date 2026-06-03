@@ -94,7 +94,7 @@ public class ProjectService {
         return project.getTasks().stream().map(taskMapper::toResponse).toList();
     }
 
-    public RiskAssessmentResponse assessRisk(Long projectId) {
+    public RiskAssessmentResponse getRiskAssessment(Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException("Project does not exist"));
 
         if (!project.getOwner().equals(SecurityUtils.getCurrentUsername())) {
