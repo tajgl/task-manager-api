@@ -2,7 +2,6 @@ package com.taj.taskmanager.controller;
 
 import com.taj.taskmanager.dto.*;
 import com.taj.taskmanager.exception.ProjectNotFoundException;
-import com.taj.taskmanager.model.Task;
 import com.taj.taskmanager.security.JwtAuthenticationFilter;
 import com.taj.taskmanager.security.JwtGenerator;
 import com.taj.taskmanager.service.ProjectService;
@@ -233,8 +232,7 @@ public class ProjectControllerTest {
 
     @Test
     public void getRiskAssessment_shouldReturn404_whenProjectNotFound() throws Exception {
-        when(projectService.getRiskAssessment(99L))
-                .thenThrow(new ProjectNotFoundException("Project does not exist"));
+        when(projectService.getRiskAssessment(99L)).thenThrow(new ProjectNotFoundException("Project does not exist"));
 
         mockMvc.perform(get("/api/projects/{id}/risk-assessment", 99L))
                 .andExpect(status().isNotFound());
@@ -242,10 +240,42 @@ public class ProjectControllerTest {
 
     @Test
     public void getRiskAssessment_shouldReturn403_whenAccessDenied() throws Exception {
-        when(projectService.getRiskAssessment(1L))
-                .thenThrow(new AccessDeniedException("Access denied"));
+        when(projectService.getRiskAssessment(1L)).thenThrow(new AccessDeniedException("Access denied"));
 
         mockMvc.perform(get("/api/projects/{id}/risk-assessment", 1L))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void getRiskAssessmentHistory_shouldReturn200AndListOfRiskResponses() throws Exception {
+        RiskAssessmentResponse riskAssessmentResponse = new RiskAssessmentResponse();
+        riskAssessmentResponse.setRiskLevel("HIGH");
+        riskAssessmentResponse.setId(1L);
+        List<RiskAssessmentResponse> riskAssessmentHistory = List.of(riskAssessmentResponse);
+
+        when(projectService.getRiskAssessmentHistory(1L)).thenReturn(riskAssessmentHistory);
+
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment/history", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].riskLevel").value("HIGH"))
+                .andExpect(jsonPath("$[0].id").value(1L));
+    }
+
+    @Test
+    public void getRiskAssessmentHistory_shouldReturn404_whenProjectNotFound() throws Exception {
+        when(projectService.getRiskAssessmentHistory(99L)).thenThrow(new ProjectNotFoundException("Project does not exist"));
+
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment/history", 99L))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getRiskAssessmentHistory_shouldReturn403_whenAccessDenied() throws Exception {
+        when(projectService.getRiskAssessmentHistory(1L)).thenThrow(new AccessDeniedException("Access denied"));
+
+        mockMvc.perform(get("/api/projects/{id}/risk-assessment/history", 1L))
                 .andExpect(status().isForbidden());
     }
 }
